@@ -1,0 +1,223 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+<title>1010 Apothecary</title>
+<link rel="icon" href="ico.jpg">
+<link rel="stylesheet" href="all.css">
+<script defer src="https://use.fontawesome.com/releases/v5.1.1/js/all.js" integrity="sha384-BtvRZcyfv4r0x/phJt9Y9HhnN5ur1Z+kZbKVgzVBAlQZX4jvAuImlIz+bG7TS00a" crossorigin="anonymous"></script>
+<script>
+function change_reg() 
+{
+	document.getElementById("register").style.display = "block";
+	document.getElementById("login").style.display = "none";
+	document.getElementById("success").style.display = "none";
+}
+function change_log() 
+{
+	document.getElementById("register").style.display = "none";
+	document.getElementById("login").style.display = "block";
+	document.getElementById("success").style.display = "none";
+}
+function setmonth()
+{
+	document.getElementById("month").innerHTML = "";
+	for(i = 1; i <= 12; i++)
+	{
+		document.getElementById("month").innerHTML = document.getElementById("month").innerHTML+"<option value=\""+i+"\">"+i+"</option>";
+	}
+	setday();
+}
+function setday()
+{
+	document.getElementById("day").innerHTML = "";
+	var e = document.getElementById("year");
+	var a1 = e.options[e.selectedIndex].value;
+	var e = document.getElementById("month");
+	var a2 = e.options[e.selectedIndex].value;
+	if(a2 == 2)
+	{
+		for(i = 1; i <= 28; i++)
+			document.getElementById("day").innerHTML = document.getElementById("day").innerHTML+"<option value=\""+i+"\">"+i+"</option>";
+		if(a1%4==0 && a1%100!=0 || a1%400==0)
+			document.getElementById("day").innerHTML = document.getElementById("day").innerHTML+"<option value=\"29\">29</option>";
+		return;
+	}
+	if(a2<=7 && a2%2==1 || a2>=8 && a2%2==0)
+		for(i = 1; i <= 31; i++)
+			document.getElementById("day").innerHTML = document.getElementById("day").innerHTML+"<option value=\""+i+"\">"+i+"</option>";
+	else
+		for(i = 1; i <= 30; i++)
+			document.getElementById("day").innerHTML = document.getElementById("day").innerHTML+"<option value=\""+i+"\">"+i+"</option>";
+}
+function res_reg()
+{
+	var oXHR=new XMLHttpRequest(); 
+	var mail = document.getElementById("mail").value;
+	var name = document.getElementById("name").value;
+	var phone = document.getElementById("phone").value;
+	var year = document.getElementById("year").options[document.getElementById("year").selectedIndex].value;
+	var month = document.getElementById("month").options[document.getElementById("month").selectedIndex].value;
+	var day = document.getElementById("day").options[document.getElementById("day").selectedIndex].value;
+	var gender = "";for(var i=0,length=document.getElementsByName("gender").length;i<length;i++){if(document.getElementsByName("gender")[i].checked){gender=document.getElementsByName("gender")[i].value;break;}}
+	var policy = "";if (document.getElementsByName("policy")[0].checked)policy = 1;
+
+	para="name="+name+"&mail="+mail+"&phone="+phone+"&year="+year+"&month="+month+"&day="+day+"&gender="+gender+"&policy="+policy;
+	oXHR.open("POST","register.php",true);
+	oXHR.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	oXHR.onreadystatechange=function()
+	{
+		if(oXHR.readyState==4&&(oXHR.status==200||oXHR.status==304))
+		{
+			document.getElementById("name").style.borderColor = "transparent";
+			document.getElementById("mail").style.borderColor = "transparent";
+			document.getElementById("phone").style.borderColor = "transparent";
+			document.getElementById("policyerror").style.color = "black";
+			document.getElementById("mailerror").innerHTML = "";
+			document.getElementById("gendererror").innerHTML = "性別";
+			if(0==oXHR.responseText)
+				document.getElementById("name").style.borderColor = "red";
+			else if(1==oXHR.responseText)
+			{
+				document.getElementById("mailerror").innerHTML = "<h4 style=\"color: red;\">電子信箱或手機號碼已經註冊</h4>"
+				document.getElementById("mail").style.borderColor = "red";
+				document.getElementById("phone").style.borderColor = "red";
+			}
+			else if(2==oXHR.responseText)
+			{
+				document.getElementById("gendererror").innerHTML = "<h4 style=\"color: red;\">請選擇性別</h4>";
+			}	
+			else if(3==oXHR.responseText)
+			{
+				document.getElementById("policyerror").style.color = "red";
+			}	
+			else
+			{
+				document.getElementById("register").style.display = "none";
+				document.getElementById("success").style.display = "block";
+			}
+		}
+	}
+	oXHR.send(para);
+}
+function res_log()
+{
+	var oXHR=new XMLHttpRequest(); 
+	var logmail = document.getElementById("logmail").value;
+	var logphone = document.getElementById("logphone").value;
+
+	para="logmail="+logmail+"&logphone="+logphone;
+	oXHR.open("POST","login.php",true);
+	oXHR.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	oXHR.onreadystatechange=function()
+	{
+		if(oXHR.readyState==4&&(oXHR.status==200||oXHR.status==304))
+		{
+			if(oXHR.responseText==0)
+			{
+				document.getElementById("logphone").style.borderColor = "red";
+				document.getElementById("logmail").style.borderColor = "red";
+				document.getElementById("loginerror").innerHTML = "<h4 style=\"color: red;\">電子信箱或手機號碼輸入錯誤</h4>";
+			}
+			else
+				window.location.assign("coupon.php");
+		}
+	}
+	oXHR.send(para);
+}
+function official_website()
+{
+	window.location.assign("https://www.1010apothecary.com.tw/");
+}
+</script>
+</head>
+<body>
+	<div class="container">
+		<img src="original.jpg" width="150">
+		<form id="register">
+			<div class="row">
+				<input type="radio" checked="true"/>
+				<label onclick="change_reg()">會員註冊</label>
+				<input type="radio" style="background-color: rgba(100%,100%,100%,0.9);"/>
+				<label onclick="change_log()" style="background-color: rgba(100%,100%,100%,0.0);color: black;">會員登入</label>
+			</div>
+			<div class="row">
+				<h4>基本資料</h4>
+				<div class="input-group input-group-icon"><input type="text" placeholder="姓名" id="name"/>
+					<div class="input-icon" style="top: 15px;"><i class="fas fa-user"></i></div>
+				</div>
+				<div id="mailerror"></div>
+				<div class="input-group input-group-icon"><input type="text" placeholder="電子信箱" id="mail"/>
+					<div class="input-icon" style="top: 15px;"><i class="fas fa-envelope"></i></div>
+				</div>
+				<div class="input-group input-group-icon"><input type="text" placeholder="手機號碼" id="phone"/>
+					<div class="input-icon" style="top: 15px;"><i class="fas fa-phone"></i></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-half">
+					<h4>出生年月</h4>					
+					<div class="input-group">
+						<select style="width: 40%" id="year" onchange="setmonth()"><script>var i;for(i = 2017; i >= 1918; i--){document.write("<option value=\""+i+"\">"+i+"</option>");}</script></select>
+						<select style="width: 30%" id="month" onchange="setday()"></select>
+						<select style="width: 30%" id="day"></select>	
+						<script>setmonth();</script>
+					</div>
+				</div>
+				<div class="col-half">
+					<h4 id="gendererror">性別</h4>
+					<div class="input-group"><input type="radio" name="gender" value="1" id="gender-male"/><label for="gender-male">男</label><input type="radio" name="gender" value="2" id="gender-female" /><label for="gender-female">女</label></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="input-group"><input type="checkbox" name="policy" id="terms" /><label for="terms"><a href="policy.html" target="_blank" style="color: #000000;" id="policyerror">我同意網站服務條款及隱私政策</a></label></div>
+			</div>
+			<div class="row">
+				<input type="radio" checked="true"/>
+				<label style="width: 100%" onClick="res_reg()">註冊</label>
+			</div>
+		</form>
+		
+		<form id="login" style="display: none;">
+			<div class="row">
+				<input type="radio"/>
+				<label onclick="change_reg()" style="background-color: rgba(100%,100%,100%,0.0);color: black;">會員註冊</label>
+				<input type="radio" checked="true"/>
+				<label onclick="change_log()">會員登入</label>
+			</div>
+			<div class="row">
+				<h4>選擇一個登入即可</h4>
+				<div class="input-group input-group-icon"><input type="text" placeholder="電子信箱" id="logmail"/>
+					<div class="input-icon" style="top: 15px;"><i class="fas fa-envelope"></i></div>
+				</div>
+				<div class="input-group input-group-icon"><input type="text" placeholder="手機號碼" id="logphone"/>
+					<div class="input-icon" style="top: 15px;"><i class="fas fa-phone"></i></div>
+				</div>
+				<div id="loginerror"></div>
+			</div>
+			<div class="row">
+				<input type="radio" name="payment-method" value="card" id="payment-method-card" checked="true"/>
+				<label style="width: 100%" onClick="res_log()">登入</label>
+			</div>
+			<br>
+			<div class="row">
+				<input type="radio" name="payment-method2" value="card2" id="payment-method-card2" checked="true"/>
+				<label style="width: 100%" onClick="official_website()">回到官網</label>
+			</div>
+		</form>
+		
+		<form id="success" style="display: none;">
+			<div class="row">
+				<input type="radio" checked="true"/>
+				<label onclick="change_reg()">會員註冊</label>
+				<input type="radio" style="background-color: rgba(100%,100%,100%,0.9);"/>
+				<label onclick="change_log()" style="background-color: rgba(100%,100%,100%,0.0);color: black;">會員登入</label>
+				
+			</div>
+			<div class="row">
+				<h4 style="text-align:center;">註冊成功<br>立即登入享好康</h4>
+			</div>
+		</form>
+	</div>
+</body>
+</html>
